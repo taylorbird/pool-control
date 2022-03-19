@@ -1,0 +1,17 @@
+/Users/tbird/dev/pool-control/obj/Debug/net6.0/pool.csproj.AssemblyReference.cache
+/Users/tbird/dev/pool-control/obj/Debug/net6.0/pool.GeneratedMSBuildEditorConfig.editorconfig
+/Users/tbird/dev/pool-control/obj/Debug/net6.0/pool.AssemblyInfoInputs.cache
+/Users/tbird/dev/pool-control/obj/Debug/net6.0/pool.AssemblyInfo.cs
+/Users/tbird/dev/pool-control/obj/Debug/net6.0/pool.csproj.CoreCompileInputs.cache
+/Users/tbird/dev/pool-control/bin/Debug/net6.0/pool
+/Users/tbird/dev/pool-control/bin/Debug/net6.0/pool.deps.json
+/Users/tbird/dev/pool-control/bin/Debug/net6.0/pool.runtimeconfig.json
+/Users/tbird/dev/pool-control/bin/Debug/net6.0/pool.dll
+/Users/tbird/dev/pool-control/bin/Debug/net6.0/pool.pdb
+/Users/tbird/dev/pool-control/bin/Debug/net6.0/HtmlAgilityPack.dll
+/Users/tbird/dev/pool-control/obj/Debug/net6.0/pool.csproj.CopyComplete
+/Users/tbird/dev/pool-control/obj/Debug/net6.0/pool.dll
+/Users/tbird/dev/pool-control/obj/Debug/net6.0/refint/pool.dll
+/Users/tbird/dev/pool-control/obj/Debug/net6.0/pool.pdb
+/Users/tbird/dev/pool-control/obj/Debug/net6.0/pool.genruntimeconfig.cache
+/Users/tbird/dev/pool-control/obj/Debug/net6.0/ref/pool.dll

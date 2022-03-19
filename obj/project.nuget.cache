@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "9kyxV1+Dr+Phv/doocRsy7+1RStCqg2/JKYEtVR0dmUp0ijI173njsCKhn4viYCBsJrDY27zilAk5qZca7fSIw==",
+  "success": true,
+  "projectFilePath": "/Users/tbird/dev/pool-control/pool.csproj",
+  "expectedPackageFiles": [
+    "/Users/tbird/.nuget/packages/awssdk.core/3.7.9/awssdk.core.3.7.9.nupkg.sha512",
+    "/Users/tbird/.nuget/packages/awssdk.timestreamquery/3.7.2.2/awssdk.timestreamquery.3.7.2.2.nupkg.sha512",
+    "/Users/tbird/.nuget/packages/awssdk.timestreamwrite/3.7.1.35/awssdk.timestreamwrite.3.7.1.35.nupkg.sha512",
+    "/Users/tbird/.nuget/packages/htmlagilitypack/1.11.42/htmlagilitypack.1.11.42.nupkg.sha512"
+  ],
+  "logs": []
+}
