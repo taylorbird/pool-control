@@ -115,7 +115,7 @@ namespace poolcontrol
                     break;
                 case "Pool T":
                     this.PoolTemp = line1.Replace("Pool Temp","").TrimmedForDisplay();
-                    WriteTemperatureData(this.PoolTemp);
+                    //WriteTemperatureData(this.PoolTemp);
                     break;
                 case "Pool C":
                     this.PoolChlorinator = line2.TrimmedForDisplay().TrimEnd(' ');
@@ -174,9 +174,9 @@ namespace poolcontrol
                 spin.Turn();
             }*/
 
-            Console.WriteLine("test set point collect");
-            var setPoint = await GetPoolSetPoint();
-            Console.WriteLine("Pool Set Point:" + setPoint);
+            Console.WriteLine("test set point collect -- OFF for POOL SOLAR update");
+            //var setPoint = await GetPoolSetPoint();
+            //Console.WriteLine("Pool Set Point:" + setPoint);
 
             Console.WriteLine("");
             Console.WriteLine("AquaConnect Pool Control");
@@ -307,7 +307,7 @@ namespace poolcontrol
         {
             client.DefaultRequestHeaders.Accept.Clear();
 
-            var response = await client.GetAsync("http://10.33.103.66/WNewSt.htm");
+            var response = await client.GetAsync("http://10.33.103.24/WNewSt.htm");
             var pageContents = await response.Content.ReadAsStringAsync();
 
             HtmlDocument pageDocument = new HtmlDocument();
@@ -329,7 +329,7 @@ namespace poolcontrol
             return displayLinesClean;
         }
 
-        private static async Task<void> WriteTemperatureData(string tempValue)
+/*         private static async Task<void> WriteTemperatureData(string tempValue)
         {
             var timestreamWriteClientConfig = new AmazonTimestreamWriteConfig
             {
@@ -386,11 +386,11 @@ namespace poolcontrol
             {
                 Console.WriteLine("Write records failure:" + e.ToString());
             }
-        }
+        } */
 
         private static async Task<string> GetPoolSetPoint()
         {
-            var url = "http://10.33.103.66/WNewSt.htm";
+            var url = "http://10.33.103.24/WNewSt.htm";
     
 
             var httpClient = new HttpClient();
@@ -430,7 +430,7 @@ namespace poolcontrol
             // read temp
 
             Thread.Sleep(1000);
-            response = await client.GetAsync("http://10.33.103.66/WNewSt.htm");
+            response = await client.GetAsync("http://10.33.103.24/WNewSt.htm");
             pageContents = await response.Content.ReadAsStringAsync();
 
             HtmlDocument pageDocument = new HtmlDocument();

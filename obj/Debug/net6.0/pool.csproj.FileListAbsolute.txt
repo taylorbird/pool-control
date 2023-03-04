@@ -15,3 +15,6 @@
 /Users/tbird/dev/pool-control/obj/Debug/net6.0/pool.pdb
 /Users/tbird/dev/pool-control/obj/Debug/net6.0/pool.genruntimeconfig.cache
 /Users/tbird/dev/pool-control/obj/Debug/net6.0/ref/pool.dll
+/Users/tbird/dev/pool-control/bin/Debug/net6.0/AWSSDK.Core.dll
+/Users/tbird/dev/pool-control/bin/Debug/net6.0/AWSSDK.TimestreamQuery.dll
+/Users/tbird/dev/pool-control/bin/Debug/net6.0/AWSSDK.TimestreamWrite.dll
