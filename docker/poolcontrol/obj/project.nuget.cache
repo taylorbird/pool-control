@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "6pBUX8lXmdFYFoTiI8yHPQXv7QUJ+GKQ3DNqBIuj0iqeLY/0YKxETIevvJisdFfvCgWL3U0IptE+jB3jg4CcrA==",
+  "success": true,
+  "projectFilePath": "/Users/tbird/dev/pool-control/docker/poolcontrol/DotNet.Docker.csproj",
+  "expectedPackageFiles": [
+    "/Users/tbird/.nuget/packages/htmlagilitypack/1.11.46/htmlagilitypack.1.11.46.nupkg.sha512"
+  ],
+  "logs": []
+}

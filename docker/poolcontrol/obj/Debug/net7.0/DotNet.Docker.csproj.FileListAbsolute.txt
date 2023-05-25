@@ -1,0 +1,17 @@
+/Users/tbird/dev/pool-control/docker/poolcontrol/bin/Debug/net7.0/DotNet.Docker
+/Users/tbird/dev/pool-control/docker/poolcontrol/bin/Debug/net7.0/DotNet.Docker.deps.json
+/Users/tbird/dev/pool-control/docker/poolcontrol/bin/Debug/net7.0/DotNet.Docker.runtimeconfig.json
+/Users/tbird/dev/pool-control/docker/poolcontrol/bin/Debug/net7.0/DotNet.Docker.dll
+/Users/tbird/dev/pool-control/docker/poolcontrol/bin/Debug/net7.0/DotNet.Docker.pdb
+/Users/tbird/dev/pool-control/docker/poolcontrol/bin/Debug/net7.0/HtmlAgilityPack.dll
+/Users/tbird/dev/pool-control/docker/poolcontrol/obj/Debug/net7.0/DotNet.Docker.csproj.AssemblyReference.cache
+/Users/tbird/dev/pool-control/docker/poolcontrol/obj/Debug/net7.0/DotNet.Docker.GeneratedMSBuildEditorConfig.editorconfig
+/Users/tbird/dev/pool-control/docker/poolcontrol/obj/Debug/net7.0/DotNet.Docker.AssemblyInfoInputs.cache
+/Users/tbird/dev/pool-control/docker/poolcontrol/obj/Debug/net7.0/DotNet.Docker.AssemblyInfo.cs
+/Users/tbird/dev/pool-control/docker/poolcontrol/obj/Debug/net7.0/DotNet.Docker.csproj.CoreCompileInputs.cache
+/Users/tbird/dev/pool-control/docker/poolcontrol/obj/Debug/net7.0/DotNet.Docker.csproj.CopyComplete
+/Users/tbird/dev/pool-control/docker/poolcontrol/obj/Debug/net7.0/DotNet.Docker.dll
+/Users/tbird/dev/pool-control/docker/poolcontrol/obj/Debug/net7.0/refint/DotNet.Docker.dll
+/Users/tbird/dev/pool-control/docker/poolcontrol/obj/Debug/net7.0/DotNet.Docker.pdb
+/Users/tbird/dev/pool-control/docker/poolcontrol/obj/Debug/net7.0/DotNet.Docker.genruntimeconfig.cache
+/Users/tbird/dev/pool-control/docker/poolcontrol/obj/Debug/net7.0/ref/DotNet.Docker.dll
