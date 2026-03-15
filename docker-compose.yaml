@@ -1,7 +1,12 @@
-version: '2.4'
-
+version: '3.8'
 services:
-  deluge:
-    container_name: poolcontrol
-    image: poolcontrol
+  pool-control:
+    build: .
+    container_name: pool-control
     restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - GATEWAY_URL=${GATEWAY_URL}
+      - PORT=3000
+      - POLL_INTERVAL=500
