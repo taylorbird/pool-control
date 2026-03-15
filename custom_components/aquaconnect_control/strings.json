@@ -1,0 +1,21 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "AquaConnect Control",
+        "description": "Connect to your AquaConnect Control API",
+        "data": {
+          "host": "API URL",
+          "scan_interval": "Update interval (seconds)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Cannot connect to AquaConnect Control API",
+      "unknown": "Unexpected error"
+    },
+    "abort": {
+      "already_configured": "This API is already configured"
+    }
+  }
+}
