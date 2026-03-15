@@ -1196,7 +1196,7 @@ const PORT = process.env.PORT || 3000;
 const POLL_INTERVAL = parseInt(process.env.POLL_INTERVAL || '500', 10);
 
 const state = createState();
-const poller = createPoller(state, POLL_INTERVAL);
+const poller = createPoller(state, { interval: POLL_INTERVAL });
 const commandQueue = createCommandQueue(sendCommand);
 
 const app = express();
