@@ -22,17 +22,23 @@ function createPoller(state, { interval = 500, pollFn = pollGateway } = {}) {
     }
   }
 
+  async function loop() {
+    await pollOnce();
+    if (running) {
+      timerId = setTimeout(loop, interval);
+    }
+  }
+
   function start() {
     if (running) return;
     running = true;
-    timerId = setInterval(pollOnce, interval);
-    pollOnce();
+    loop();
     console.log(`Poller started (interval: ${interval}ms)`);
   }
 
   function stop() {
     if (timerId) {
-      clearInterval(timerId);
+      clearTimeout(timerId);
       timerId = null;
     }
     running = false;

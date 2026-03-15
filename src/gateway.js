@@ -1,8 +1,7 @@
-const GATEWAY_URL = process.env.GATEWAY_URL;
-
 function getGatewayUrl() {
-  if (!GATEWAY_URL) throw new Error('GATEWAY_URL environment variable is required');
-  return GATEWAY_URL;
+  const url = process.env.GATEWAY_URL;
+  if (!url) throw new Error('GATEWAY_URL environment variable is required');
+  return url;
 }
 
 async function pollGateway() {
@@ -10,6 +9,7 @@ async function pollGateway() {
   const response = await fetch(url, {
     method: 'POST',
     body: 'Update Local Server&',
+    signal: AbortSignal.timeout(5000),
   });
   if (!response.ok) throw new Error(`Gateway returned ${response.status}`);
   return response.text();
@@ -21,6 +21,7 @@ async function sendCommand(keyId) {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: `KeyId=${keyId}`,
+    signal: AbortSignal.timeout(5000),
   });
   if (!response.ok) throw new Error(`Gateway returned ${response.status}`);
 }
