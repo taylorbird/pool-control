@@ -66,4 +66,59 @@ describe('poller', () => {
     poller.stop();
     expect(poller.isRunning()).toBe(false);
   });
+
+  describe('heat settings periodic fetch', () => {
+    test('calls heatSettingsFetch after heatSettingsInterval elapses', async () => {
+      const mockPollFn = jest.fn().mockResolvedValue(loadFixture('air-temp.html'));
+      const mockHeatSettingsFetch = jest.fn().mockResolvedValue({});
+      const poller = createPoller(state, {
+        interval: 100,
+        pollFn: mockPollFn,
+        heatSettingsFetch: mockHeatSettingsFetch,
+        heatSettingsInterval: 0,
+      });
+
+      await poller.pollOnce();
+
+      expect(mockHeatSettingsFetch).toHaveBeenCalledTimes(1);
+    });
+
+    test('does not call heatSettingsFetch when interval has not elapsed', async () => {
+      const mockPollFn = jest.fn().mockResolvedValue(loadFixture('air-temp.html'));
+      const mockHeatSettingsFetch = jest.fn().mockResolvedValue({});
+      const poller = createPoller(state, {
+        interval: 100,
+        pollFn: mockPollFn,
+        heatSettingsFetch: mockHeatSettingsFetch,
+        heatSettingsInterval: 9999,
+      });
+
+      await poller.pollOnce();
+      expect(mockHeatSettingsFetch).toHaveBeenCalledTimes(1);
+
+      await poller.pollOnce();
+      expect(mockHeatSettingsFetch).toHaveBeenCalledTimes(1);
+    });
+
+    test('handles heatSettingsFetch errors without crashing', async () => {
+      const mockPollFn = jest.fn().mockResolvedValue(loadFixture('air-temp.html'));
+      const mockHeatSettingsFetch = jest.fn().mockRejectedValue(new Error('nav failed'));
+      const poller = createPoller(state, {
+        interval: 100,
+        pollFn: mockPollFn,
+        heatSettingsFetch: mockHeatSettingsFetch,
+        heatSettingsInterval: 0,
+      });
+
+      await poller.pollOnce();
+      expect(mockHeatSettingsFetch).toHaveBeenCalled();
+    });
+
+    test('skips heat settings fetch when no fetch function provided', async () => {
+      const mockPollFn = jest.fn().mockResolvedValue(loadFixture('air-temp.html'));
+      const poller = createPoller(state, { interval: 100, pollFn: mockPollFn });
+
+      await poller.pollOnce();
+    });
+  });
 });

@@ -1,9 +1,30 @@
 const { pollGateway } = require('./gateway');
 const { parseGatewayResponse } = require('./parser');
 
-function createPoller(state, { interval = 500, pollFn = pollGateway } = {}) {
+function createPoller(state, {
+  interval = 500,
+  pollFn = pollGateway,
+  heatSettingsFetch = null,
+  heatSettingsInterval = 3600,
+} = {}) {
   let timerId = null;
   let running = false;
+  let lastHeatSettingsFetch = 0;
+
+  async function maybeFetchHeatSettings() {
+    if (!heatSettingsFetch) return;
+
+    const now = Date.now();
+    const elapsed = (now - lastHeatSettingsFetch) / 1000;
+    if (elapsed >= heatSettingsInterval) {
+      lastHeatSettingsFetch = now;
+      try {
+        await heatSettingsFetch();
+      } catch (err) {
+        console.error('Heat settings fetch error:', err.message);
+      }
+    }
+  }
 
   async function pollOnce() {
     try {
@@ -20,6 +41,8 @@ function createPoller(state, { interval = 500, pollFn = pollGateway } = {}) {
     } catch (err) {
       console.error('Poll error:', err.message);
     }
+
+    await maybeFetchHeatSettings();
   }
 
   async function loop() {
