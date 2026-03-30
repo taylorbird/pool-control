@@ -114,4 +114,19 @@ function parseHeatSettingValue(raw) {
   return { enabled: true, setPoint: num };
 }
 
-module.exports = { parseGatewayResponse, decodeLedString, parseSensor, parseHeatSettingValue };
+function parseMenuScreen(html) {
+  const root = parse(html);
+  const body = root.querySelector('body');
+  if (!body) throw new Error('No <body> found in gateway response');
+
+  const text = body.rawText || body.text || '';
+  const parts = text.split('xxx');
+  if (parts.length < 3) throw new Error('Unexpected gateway response format');
+
+  return {
+    line1: parts[0].trim(),
+    line2: parts[1].trim(),
+  };
+}
+
+module.exports = { parseGatewayResponse, decodeLedString, parseSensor, parseHeatSettingValue, parseMenuScreen };

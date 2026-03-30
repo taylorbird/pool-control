@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { parseGatewayResponse, parseHeatSettingValue } = require('../src/parser');
+const { parseGatewayResponse, parseHeatSettingValue, parseMenuScreen } = require('../src/parser');
 
 function loadFixture(name) {
   return fs.readFileSync(path.join(__dirname, 'fixtures', name), 'utf-8');
@@ -119,5 +119,40 @@ describe('parseHeatSettingValue', () => {
 
   test('strips span tags around Off', () => {
     expect(parseHeatSettingValue('<span class="WBON">Off</span>')).toEqual({ enabled: false, setPoint: null });
+  });
+});
+
+describe('parseMenuScreen', () => {
+  test('extracts line1 and line2 from gateway HTML', () => {
+    const html = `<html><head></head><body>
+     Spa Heater1   xxx
+      <span class="WBON">96&#176;F</span>       xxx
+TESD5C333333xxx
+</body></html>`;
+    const result = parseMenuScreen(html);
+    expect(result.line1).toBe('Spa Heater1');
+    expect(result.line2).toContain('96');
+  });
+
+  test('extracts Settings Menu screen', () => {
+    const html = `<html><head></head><body>
+     Settings      xxx
+      Menu         xxx
+TESD5C333333xxx
+</body></html>`;
+    const result = parseMenuScreen(html);
+    expect(result.line1).toBe('Settings');
+    expect(result.line2).toBe('Menu');
+  });
+
+  test('extracts Default Menu screen', () => {
+    const html = `<html><head></head><body>
+     Default       xxx
+      Menu         xxx
+TESD5C333333xxx
+</body></html>`;
+    const result = parseMenuScreen(html);
+    expect(result.line1).toBe('Default');
+    expect(result.line2).toBe('Menu');
   });
 });
