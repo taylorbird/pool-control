@@ -20,6 +20,13 @@ function createState() {
       heaterMode: null,
     },
     lastUpdated: null,
+    heatSettings: {
+      spaHeater: { enabled: null, setPoint: null },
+      poolHeater: { enabled: null, setPoint: null },
+      spaSolar: { enabled: null, setPoint: null },
+      poolSolar: { enabled: null, setPoint: null },
+      lastUpdated: null,
+    },
   };
 
   return {
@@ -45,6 +52,14 @@ function createState() {
 
     updateTimestamp(isoString) {
       data.lastUpdated = isoString;
+    },
+
+    updateHeatSettings({ spaHeater, poolHeater, spaSolar, poolSolar }) {
+      data.heatSettings.spaHeater = spaHeater;
+      data.heatSettings.poolHeater = poolHeater;
+      data.heatSettings.spaSolar = spaSolar;
+      data.heatSettings.poolSolar = poolSolar;
+      data.heatSettings.lastUpdated = new Date().toISOString();
     },
   };
 }

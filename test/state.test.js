@@ -67,4 +67,29 @@ describe('state', () => {
     expect(snap1.sensors.airTemp).toBe(85);
     expect(snap2.sensors.airTemp).toBe(90);
   });
+
+  test('initializes heatSettings with null values', () => {
+    const snapshot = state.getSnapshot();
+    expect(snapshot.heatSettings).toEqual({
+      spaHeater: { enabled: null, setPoint: null },
+      poolHeater: { enabled: null, setPoint: null },
+      spaSolar: { enabled: null, setPoint: null },
+      poolSolar: { enabled: null, setPoint: null },
+      lastUpdated: null,
+    });
+  });
+
+  test('updateHeatSettings sets heat setting values', () => {
+    state.updateHeatSettings({
+      spaHeater: { enabled: true, setPoint: 96 },
+      poolHeater: { enabled: false, setPoint: null },
+      spaSolar: { enabled: false, setPoint: null },
+      poolSolar: { enabled: true, setPoint: 89 },
+    });
+    const snapshot = state.getSnapshot();
+    expect(snapshot.heatSettings.spaHeater).toEqual({ enabled: true, setPoint: 96 });
+    expect(snapshot.heatSettings.poolHeater).toEqual({ enabled: false, setPoint: null });
+    expect(snapshot.heatSettings.poolSolar).toEqual({ enabled: true, setPoint: 89 });
+    expect(snapshot.heatSettings.lastUpdated).not.toBeNull();
+  });
 });
