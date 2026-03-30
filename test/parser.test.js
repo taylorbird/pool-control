@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { parseGatewayResponse } = require('../src/parser');
+const { parseGatewayResponse, parseHeatSettingValue } = require('../src/parser');
 
 function loadFixture(name) {
   return fs.readFileSync(path.join(__dirname, 'fixtures', name), 'utf-8');
@@ -89,5 +89,35 @@ DDDD3C333333xxx
     expect(result.lcd.line1).not.toContain('&#176');
     expect(result.lcd.line1).not.toContain('\u00b0');
     expect(result.sensor.value).toBe(85);
+  });
+});
+
+describe('parseHeatSettingValue', () => {
+  test('parses temperature with degree symbol entity', () => {
+    expect(parseHeatSettingValue('96&#176;F')).toEqual({ enabled: true, setPoint: 96 });
+  });
+
+  test('parses temperature with unicode degree symbol', () => {
+    expect(parseHeatSettingValue('96\u00b0F')).toEqual({ enabled: true, setPoint: 96 });
+  });
+
+  test('parses temperature without degree symbol', () => {
+    expect(parseHeatSettingValue('89F')).toEqual({ enabled: true, setPoint: 89 });
+  });
+
+  test('parses Off value', () => {
+    expect(parseHeatSettingValue('Off')).toEqual({ enabled: false, setPoint: null });
+  });
+
+  test('parses Off with surrounding whitespace', () => {
+    expect(parseHeatSettingValue('  Off  ')).toEqual({ enabled: false, setPoint: null });
+  });
+
+  test('strips span tags', () => {
+    expect(parseHeatSettingValue('<span class="WBON">96&#176;F</span>')).toEqual({ enabled: true, setPoint: 96 });
+  });
+
+  test('strips span tags around Off', () => {
+    expect(parseHeatSettingValue('<span class="WBON">Off</span>')).toEqual({ enabled: false, setPoint: null });
   });
 });

@@ -101,4 +101,17 @@ function parseGatewayResponse(html) {
   };
 }
 
-module.exports = { parseGatewayResponse, decodeLedString, parseSensor };
+function parseHeatSettingValue(raw) {
+  let text = raw.replace(/<[^>]+>/g, '');
+  text = text.replace(/&#176;?/g, '').replace(/\u00b0/g, '');
+  text = text.replace(/F$/, '').trim();
+
+  if (text.toLowerCase() === 'off') {
+    return { enabled: false, setPoint: null };
+  }
+
+  const num = parseInt(text, 10);
+  return { enabled: true, setPoint: num };
+}
+
+module.exports = { parseGatewayResponse, decodeLedString, parseSensor, parseHeatSettingValue };
