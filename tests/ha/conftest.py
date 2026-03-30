@@ -25,6 +25,13 @@ MOCK_STATUS_RESPONSE = {
         "heaterMode": "Off",
     },
     "lastUpdated": "2026-03-14T12:00:00.000Z",
+    "heatSettings": {
+        "spaHeater": {"enabled": True, "setPoint": 96},
+        "poolHeater": {"enabled": False, "setPoint": None},
+        "spaSolar": {"enabled": False, "setPoint": None},
+        "poolSolar": {"enabled": True, "setPoint": 89},
+        "lastUpdated": "2026-03-22T22:30:00.000Z",
+    },
 }
 
 MOCK_HEALTH_RESPONSE = {

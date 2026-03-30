@@ -5,7 +5,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN, SENSOR_DEFINITIONS
+from .const import DOMAIN, SENSOR_DEFINITIONS, HEAT_SETTING_SENSOR_DEFINITIONS
 from .coordinator import AquaConnectCoordinator
 
 
@@ -16,7 +16,7 @@ async def async_setup_entry(
     coordinator = hass.data[DOMAIN][entry.entry_id]
     entities = [
         AquaConnectSensor(coordinator, entry, defn)
-        for defn in SENSOR_DEFINITIONS
+        for defn in SENSOR_DEFINITIONS + HEAT_SETTING_SENSOR_DEFINITIONS
     ]
     async_add_entities(entities)
 
@@ -39,9 +39,8 @@ class AquaConnectSensor(CoordinatorEntity, SensorEntity):
         self._attr_device_class = definition["device_class"]
         self._attr_state_class = definition["state_class"]
 
-    @property
-    def native_value(self):
-        """Return the sensor value from coordinator data."""
+    def _resolve_path(self):
+        """Walk the data dict following the definition path."""
         data = self.coordinator.data
         if data is None:
             return None
@@ -51,6 +50,26 @@ class AquaConnectSensor(CoordinatorEntity, SensorEntity):
             else:
                 return None
         return data
+
+    @property
+    def native_value(self):
+        """Return the sensor value from coordinator data."""
+        data = self._resolve_path()
+        if data is None:
+            return None
+        if self._definition.get("heat_setting"):
+            return data.get("setPoint") if data.get("enabled") else None
+        return data
+
+    @property
+    def extra_state_attributes(self):
+        """Return extra state attributes."""
+        if not self._definition.get("heat_setting"):
+            return None
+        data = self._resolve_path()
+        if data is None:
+            return {"enabled": None}
+        return {"enabled": data.get("enabled")}
 
     @property
     def device_info(self):

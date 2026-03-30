@@ -3,7 +3,7 @@ import pytest
 from unittest.mock import MagicMock, AsyncMock
 
 from custom_components.aquaconnect_control.sensor import AquaConnectSensor
-from custom_components.aquaconnect_control.const import SENSOR_DEFINITIONS, DOMAIN
+from custom_components.aquaconnect_control.const import SENSOR_DEFINITIONS, DOMAIN, HEAT_SETTING_SENSOR_DEFINITIONS
 from tests.ha.conftest import MOCK_STATUS_RESPONSE
 
 
@@ -65,3 +65,34 @@ def test_sensor_unique_id(mock_coordinator, mock_entry):
     defn = SENSOR_DEFINITIONS[0]
     sensor = AquaConnectSensor(mock_coordinator, mock_entry, defn)
     assert sensor.unique_id == "test_entry_123_poolTemp"
+
+
+def test_heat_setting_sensor_enabled(mock_coordinator, mock_entry):
+    """Heat setting sensor shows set point when enabled."""
+    defn = HEAT_SETTING_SENSOR_DEFINITIONS[0]  # spa_heater_set_point
+    sensor = AquaConnectSensor(mock_coordinator, mock_entry, defn)
+    assert sensor.native_value == 96
+    assert sensor.native_unit_of_measurement == "°F"
+
+
+def test_heat_setting_sensor_disabled(mock_coordinator, mock_entry):
+    """Heat setting sensor shows None when disabled."""
+    defn = HEAT_SETTING_SENSOR_DEFINITIONS[1]  # pool_heater_set_point
+    sensor = AquaConnectSensor(mock_coordinator, mock_entry, defn)
+    assert sensor.native_value is None
+
+
+def test_heat_setting_sensor_extra_attrs(mock_coordinator, mock_entry):
+    """Heat setting sensor exposes enabled as extra state attribute."""
+    defn = HEAT_SETTING_SENSOR_DEFINITIONS[0]  # spa_heater_set_point
+    sensor = AquaConnectSensor(mock_coordinator, mock_entry, defn)
+    attrs = sensor.extra_state_attributes
+    assert attrs["enabled"] is True
+
+
+def test_heat_setting_sensor_disabled_extra_attrs(mock_coordinator, mock_entry):
+    """Disabled heat setting sensor has enabled=False in extra attrs."""
+    defn = HEAT_SETTING_SENSOR_DEFINITIONS[1]  # pool_heater_set_point
+    sensor = AquaConnectSensor(mock_coordinator, mock_entry, defn)
+    attrs = sensor.extra_state_attributes
+    assert attrs["enabled"] is False

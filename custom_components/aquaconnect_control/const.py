@@ -24,3 +24,42 @@ SWITCH_DEFINITIONS = [
     {"key": "waterfall", "name": "Waterfall", "command": "waterfall", "state_path": ["equipment", "waterfall", "on"]},
     {"key": "solarHeater", "name": "Solar Heater", "command": "solarHeater", "state_path": ["equipment", "solarHeater", "on"]},
 ]
+
+HEAT_SETTING_SENSOR_DEFINITIONS = [
+    {
+        "key": "spa_heater_set_point",
+        "name": "Spa Heater Set Point",
+        "device_class": "temperature",
+        "unit": "°F",
+        "state_class": "measurement",
+        "path": ["heatSettings", "spaHeater"],
+        "heat_setting": True,
+    },
+    {
+        "key": "pool_heater_set_point",
+        "name": "Pool Heater Set Point",
+        "device_class": "temperature",
+        "unit": "°F",
+        "state_class": "measurement",
+        "path": ["heatSettings", "poolHeater"],
+        "heat_setting": True,
+    },
+    {
+        "key": "spa_solar_set_point",
+        "name": "Spa Solar Set Point",
+        "device_class": "temperature",
+        "unit": "°F",
+        "state_class": "measurement",
+        "path": ["heatSettings", "spaSolar"],
+        "heat_setting": True,
+    },
+    {
+        "key": "pool_solar_set_point",
+        "name": "Pool Solar Set Point",
+        "device_class": "temperature",
+        "unit": "°F",
+        "state_class": "measurement",
+        "path": ["heatSettings", "poolSolar"],
+        "heat_setting": True,
+    },
+]
