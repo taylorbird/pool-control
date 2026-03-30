@@ -1,6 +1,6 @@
 const { COMMAND_MAP } = require('./commands');
 
-function mountRoutes(app, state, commandQueue, poller) {
+function mountRoutes(app, state, commandQueue, poller, heatSettingsFetcher) {
   app.get('/api/status', (req, res) => {
     res.json(state.getSnapshot());
   });
@@ -12,6 +12,18 @@ function mountRoutes(app, state, commandQueue, poller) {
       polling: poller.isRunning(),
       lastUpdated: snapshot.lastUpdated,
     });
+  });
+
+  app.get('/api/heat-settings', async (req, res) => {
+    try {
+      const settings = await heatSettingsFetcher.fetch();
+      res.json(settings);
+    } catch (err) {
+      if (err.message.includes('in progress')) {
+        return res.status(429).json({ error: err.message });
+      }
+      res.status(503).json({ error: err.message });
+    }
   });
 
   app.post('/api/command/:action', async (req, res) => {

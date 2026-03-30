@@ -4,13 +4,23 @@ const { createState } = require('../src/state');
 const { createCommandQueue } = require('../src/commands');
 const { mountRoutes } = require('../src/routes');
 
-function createApp() {
+function createApp({ fetcherOverrides } = {}) {
   const state = createState();
   const mockSendCommand = jest.fn().mockResolvedValue();
   const queue = createCommandQueue(mockSendCommand, { commandDelay: 0 });
+  const poller = { isRunning: () => true, stop: jest.fn(), start: jest.fn() };
+  const mockFetcher = {
+    fetch: jest.fn().mockResolvedValue({
+      spaHeater: { enabled: true, setPoint: 96 },
+      poolHeater: { enabled: false, setPoint: null },
+      spaSolar: { enabled: false, setPoint: null },
+      poolSolar: { enabled: true, setPoint: 89 },
+    }),
+    ...fetcherOverrides,
+  };
   const app = express();
-  mountRoutes(app, state, queue, { isRunning: () => true });
-  return { app, state, queue, mockSendCommand };
+  mountRoutes(app, state, queue, poller, mockFetcher);
+  return { app, state, queue, mockSendCommand, mockFetcher };
 }
 
 describe('GET /api/status', () => {
@@ -42,6 +52,37 @@ describe('GET /api/health', () => {
     expect(res.body.ok).toBe(true);
     expect(res.body.polling).toBe(true);
     expect(res.body.lastUpdated).toBe('2026-03-14T12:00:00.000Z');
+  });
+});
+
+describe('GET /api/heat-settings', () => {
+  test('returns heat settings from fetcher', async () => {
+    const { app } = createApp();
+    const res = await request(app).get('/api/heat-settings');
+    expect(res.status).toBe(200);
+    expect(res.body.spaHeater).toEqual({ enabled: true, setPoint: 96 });
+    expect(res.body.poolSolar).toEqual({ enabled: true, setPoint: 89 });
+  });
+
+  test('returns 429 when fetch already in progress', async () => {
+    const { app } = createApp({
+      fetcherOverrides: {
+        fetch: jest.fn().mockRejectedValue(new Error('Heat settings fetch already in progress')),
+      },
+    });
+    const res = await request(app).get('/api/heat-settings');
+    expect(res.status).toBe(429);
+    expect(res.body.error).toContain('in progress');
+  });
+
+  test('returns 503 when navigation fails', async () => {
+    const { app } = createApp({
+      fetcherOverrides: {
+        fetch: jest.fn().mockRejectedValue(new Error('Could not reach Settings Menu')),
+      },
+    });
+    const res = await request(app).get('/api/heat-settings');
+    expect(res.status).toBe(503);
   });
 });
 
