@@ -1,11 +1,12 @@
 {
   "domain": "aquaconnect_control",
   "name": "AquaConnect Control",
-  "codeowners": [],
+  "codeowners": ["@taylorbird"],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "",
+  "documentation": "https://github.com/taylorbird/pool-control",
   "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/taylorbird/pool-control/issues",
   "requirements": [],
   "version": "1.0.0"
 }
