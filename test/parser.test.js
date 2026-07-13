@@ -48,6 +48,29 @@ describe('parseGatewayResponse', () => {
     expect(result.sensor).toEqual({ name: 'heaterMode', value: 'Off' });
   });
 
+  test('detects check system warning from control nibble', () => {
+    // Live-captured warning screen: LED string ends in '5' (check system)
+    const result = parseGatewayResponse(loadFixture('check-system.html'));
+    expect(result.system).toEqual({ checkSystem: true, message: 'Inspect Cell' });
+  });
+
+  test('reports no warning when control nibble is normal', () => {
+    // Existing fixtures end in '3' (normal)
+    const result = parseGatewayResponse(loadFixture('air-temp.html'));
+    expect(result.system).toEqual({ checkSystem: false, message: null });
+  });
+
+  test('detects warning nibble even when a non-warning screen is showing', () => {
+    // Live behavior: LED string carries the warning on every screen
+    const html = `<html><head></head><body>
+  Air Temp  102&#176F   xxx
+      &nbsp;       xxx
+TECE4C333335xxx
+</body></html>`;
+    const result = parseGatewayResponse(html);
+    expect(result.system).toEqual({ checkSystem: true, message: null });
+  });
+
   test('returns null sensor for unknown screen', () => {
     const html = `<html><head></head><body>
      Some Unknown    xxx

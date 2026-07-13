@@ -20,6 +20,10 @@ function createState() {
       heaterMode: null,
     },
     lastUpdated: null,
+    system: {
+      checkSystem: null,
+      message: null,
+    },
     heatSettings: {
       spaHeater: { enabled: null, setPoint: null },
       poolHeater: { enabled: null, setPoint: null },
@@ -52,6 +56,17 @@ function createState() {
 
     updateTimestamp(isoString) {
       data.lastUpdated = isoString;
+    },
+
+    updateSystem({ checkSystem, message }) {
+      data.system.checkSystem = checkSystem;
+      if (message != null) {
+        // Only the "Check System" screen carries the message text; keep the
+        // last one seen while the warning stays active
+        data.system.message = message;
+      } else if (checkSystem === false) {
+        data.system.message = null;
+      }
     },
 
     updateHeatSettings({ spaHeater, poolHeater, spaSolar, poolSolar }) {

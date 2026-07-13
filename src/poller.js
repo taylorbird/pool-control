@@ -37,6 +37,10 @@ function createPoller(state, {
         state.updateSensor(result.sensor.name, result.sensor.value);
       }
 
+      if (result.system) {
+        state.updateSystem(result.system);
+      }
+
       state.updateTimestamp(new Date().toISOString());
     } catch (err) {
       console.error('Poll error:', err.message);

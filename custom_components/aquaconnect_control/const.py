@@ -14,6 +14,7 @@ SENSOR_DEFINITIONS = [
     {"key": "poolChlorinator", "name": "Pool Chlorinator", "device_class": None, "unit": None, "state_class": None, "path": ["sensors", "poolChlorinator"]},
     {"key": "spaChlorinator", "name": "Spa Chlorinator", "device_class": None, "unit": None, "state_class": None, "path": ["sensors", "spaChlorinator"]},
     {"key": "heaterMode", "name": "Heater Mode", "device_class": None, "unit": None, "state_class": None, "path": ["sensors", "heaterMode"]},
+    {"key": "systemMessage", "name": "System Message", "device_class": None, "unit": None, "state_class": None, "path": ["system", "message"]},
 ]
 
 SWITCH_DEFINITIONS = [

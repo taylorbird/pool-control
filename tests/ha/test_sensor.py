@@ -67,6 +67,14 @@ def test_sensor_unique_id(mock_coordinator, mock_entry):
     assert sensor.unique_id == "test_entry_123_poolTemp"
 
 
+def test_system_message_sensor(mock_coordinator, mock_entry):
+    """System Message sensor surfaces the warning text."""
+    defn = next(d for d in SENSOR_DEFINITIONS if d["key"] == "systemMessage")
+    sensor = AquaConnectSensor(mock_coordinator, mock_entry, defn)
+    assert sensor.native_value == "Inspect Cell"
+    assert sensor.name == "System Message"
+
+
 def test_heat_setting_sensor_enabled(mock_coordinator, mock_entry):
     """Heat setting sensor shows set point when enabled."""
     defn = HEAT_SETTING_SENSOR_DEFINITIONS[0]  # spa_heater_set_point

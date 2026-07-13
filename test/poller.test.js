@@ -28,6 +28,16 @@ describe('poller', () => {
     expect(snapshot.lastUpdated).not.toBeNull();
   });
 
+  test('poll updates system warning state', async () => {
+    const mockPollFn = jest.fn().mockResolvedValue(loadFixture('check-system.html'));
+    const poller = createPoller(state, { interval: 100, pollFn: mockPollFn });
+
+    await poller.pollOnce();
+
+    const snapshot = state.getSnapshot();
+    expect(snapshot.system).toEqual({ checkSystem: true, message: 'Inspect Cell' });
+  });
+
   test('poll updates sensor values as LCD screens cycle', async () => {
     const screens = ['air-temp.html', 'salt-level.html', 'filter-speed.html'];
     let callCount = 0;

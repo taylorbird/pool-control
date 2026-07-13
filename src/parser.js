@@ -28,6 +28,10 @@ function decodeLedString(ledStr) {
   if (isOn(0)) mode = 'pool';
   else if (isOn(1)) mode = 'spa';
 
+  // Last nibble is the control nibble, not a button:
+  // 3=normal, 4=names changed, 5=check system warning, 6=both
+  const control = buttons[buttons.length - 1];
+
   return {
     mode,
     filter: isOn(3),
@@ -36,6 +40,7 @@ function decodeLedString(ledStr) {
     solarHeater: isOn(7),
     spaLights: isOn(9),
     waterfall: isOn(10),
+    checkSystem: control === 5 || control === 6,
   };
 }
 
@@ -91,13 +96,18 @@ function parseGatewayResponse(html) {
   const line2 = parts[1];
   const ledStr = parts[2].trim();
 
-  const equipment = decodeLedString(ledStr);
+  const { checkSystem, ...equipment } = decodeLedString(ledStr);
   const sensor = parseSensor(line1, line2);
 
   return {
     lcd: { line1: line1.trim(), line2: line2.trim() },
     equipment,
     sensor,
+    system: {
+      checkSystem,
+      // The warning message is line 2 of the "Check System" screen when it cycles past
+      message: line1.trim() === 'Check System' ? line2.trim() : null,
+    },
   };
 }
 

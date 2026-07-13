@@ -79,6 +79,29 @@ describe('state', () => {
     });
   });
 
+  test('initializes system with null values', () => {
+    const snapshot = state.getSnapshot();
+    expect(snapshot.system).toEqual({ checkSystem: null, message: null });
+  });
+
+  test('updateSystem sets warning flag and message', () => {
+    state.updateSystem({ checkSystem: true, message: 'Inspect Cell' });
+    expect(state.getSnapshot().system).toEqual({ checkSystem: true, message: 'Inspect Cell' });
+  });
+
+  test('updateSystem keeps last message while warning stays active', () => {
+    // The message screen only cycles past occasionally; the nibble is on every poll
+    state.updateSystem({ checkSystem: true, message: 'Inspect Cell' });
+    state.updateSystem({ checkSystem: true, message: null });
+    expect(state.getSnapshot().system).toEqual({ checkSystem: true, message: 'Inspect Cell' });
+  });
+
+  test('updateSystem clears message when warning resolves', () => {
+    state.updateSystem({ checkSystem: true, message: 'Inspect Cell' });
+    state.updateSystem({ checkSystem: false, message: null });
+    expect(state.getSnapshot().system).toEqual({ checkSystem: false, message: null });
+  });
+
   test('updateHeatSettings sets heat setting values', () => {
     state.updateHeatSettings({
       spaHeater: { enabled: true, setPoint: 96 },

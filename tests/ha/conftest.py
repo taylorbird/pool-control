@@ -32,6 +32,10 @@ MOCK_STATUS_RESPONSE = {
         "poolSolar": {"enabled": True, "setPoint": 89},
         "lastUpdated": "2026-03-22T22:30:00.000Z",
     },
+    "system": {
+        "checkSystem": True,
+        "message": "Inspect Cell",
+    },
 }
 
 MOCK_HEALTH_RESPONSE = {
