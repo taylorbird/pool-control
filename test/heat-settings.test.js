@@ -103,12 +103,60 @@ describe('heat settings fetcher', () => {
     await fetcher.fetch();
 
     const calls = mockSendCommand.mock.calls.map(c => c[0]);
-    expect(calls[0]).toBe('02'); // MENU to enter settings
-    expect(calls[1]).toBe('01'); // RIGHT to Pool Heater1
-    expect(calls[2]).toBe('01'); // RIGHT to Spa Solar
-    expect(calls[3]).toBe('01'); // RIGHT to Pool Solar
-    expect(calls[4]).toBe('02'); // MENU to find Default Menu
-    expect(calls[5]).toBe('02'); // MENU to resume cycling
+    // Real gateway: the Settings Menu screen itself shows "Settings / Menu";
+    // a RIGHT press is required to reach the first item (Spa Heater1).
+    expect(calls).toEqual([
+      '02', // MENU to enter settings
+      '01', // RIGHT to Spa Heater1
+      '01', // RIGHT to Pool Heater1
+      '01', // RIGHT to Spa Solar
+      '01', // RIGHT to Pool Solar
+      '02', // MENU to find Default Menu
+      '01', // RIGHT from Default Menu resumes cycling display immediately
+    ]);
+  });
+
+  test('throws when a settings screen is not the expected one', async () => {
+    pollResponses = [
+      loadFixture('settings-menu.html'),
+      // wrong screen where Spa Heater1 expected, for every retry poll
+      ...Array(5).fill(loadFixture('air-temp.html')),
+    ];
+
+    await expect(fetcher.fetch()).rejects.toThrow(/[Ee]xpected.*Spa Heater1/);
+    expect(mockPoller.start).toHaveBeenCalled();
+  });
+
+  test('re-polls when the screen has not advanced after a keypress', async () => {
+    pollResponses = [
+      loadFixture('settings-menu.html'),
+      loadFixture('spa-heater1.html'),
+      loadFixture('spa-heater1.html'), // display lagging: still on Spa Heater1 after RIGHT
+      loadFixture('pool-heater1.html'),
+      loadFixture('spa-solar.html'),
+      loadFixture('pool-solar.html'),
+      loadFixture('default-menu.html'),
+    ];
+
+    const result = await fetcher.fetch();
+
+    expect(result.poolHeater).toEqual({ enabled: false, setPoint: null });
+    expect(result.poolSolar).toEqual({ enabled: true, setPoint: 89 });
+  });
+
+  test('attempts to exit the menu after a failed fetch', async () => {
+    pollResponses = [
+      loadFixture('settings-menu.html'),
+      ...Array(3).fill(loadFixture('air-temp.html')), // Spa Heater1 never appears
+      loadFixture('default-menu.html'), // recovery MENU press reaches Default Menu
+    ];
+
+    await expect(fetcher.fetch()).rejects.toThrow(/[Ee]xpected.*Spa Heater1/);
+
+    const calls = mockSendCommand.mock.calls.map(c => c[0]);
+    // MENU to enter settings, RIGHT toward Spa Heater1 (which never appears),
+    // then recovery: MENU toward Default Menu, RIGHT to resume cycling display
+    expect(calls).toEqual(['02', '01', '02', '01']);
   });
 
   test('retries MENU to find Settings Menu', async () => {

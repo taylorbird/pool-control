@@ -101,6 +101,10 @@ describe('parseHeatSettingValue', () => {
     expect(parseHeatSettingValue('96\u00b0F')).toEqual({ enabled: true, setPoint: 96 });
   });
 
+  test('parses live gateway format: degree entity without semicolon, wrapped in span', () => {
+    expect(parseHeatSettingValue('<span class="WBON">96&#176F</span>')).toEqual({ enabled: true, setPoint: 96 });
+  });
+
   test('parses temperature without degree symbol', () => {
     expect(parseHeatSettingValue('89F')).toEqual({ enabled: true, setPoint: 89 });
   });
