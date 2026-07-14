@@ -9,6 +9,9 @@ const { mountRoutes } = require('./routes');
 const PORT = process.env.PORT || 3000;
 const POLL_INTERVAL = parseInt(process.env.POLL_INTERVAL || '500', 10);
 const HEAT_SETTINGS_INTERVAL = parseInt(process.env.HEAT_SETTINGS_INTERVAL || '3600', 10);
+// Enable the on-screen toggle buttons on the status page. Off by default;
+// the command API (used by the HA integration) is always available regardless.
+const STATUS_PAGE_CONTROLS = /^(1|true|yes|on)$/i.test(process.env.STATUS_PAGE_CONTROLS || '');
 
 const state = createState();
 const commandQueue = createCommandQueue(sendCommand);
@@ -31,7 +34,9 @@ heatSettingsFetcher = createHeatSettingsFetcher({
 });
 
 const app = express();
-mountRoutes(app, state, commandQueue, poller, heatSettingsFetcher);
+mountRoutes(app, state, commandQueue, poller, heatSettingsFetcher, {
+  controlsEnabled: STATUS_PAGE_CONTROLS,
+});
 
 poller.start();
 

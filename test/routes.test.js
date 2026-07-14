@@ -4,7 +4,7 @@ const { createState } = require('../src/state');
 const { createCommandQueue } = require('../src/commands');
 const { mountRoutes } = require('../src/routes');
 
-function createApp({ fetcherOverrides } = {}) {
+function createApp({ fetcherOverrides, options } = {}) {
   const state = createState();
   const mockSendCommand = jest.fn().mockResolvedValue();
   const queue = createCommandQueue(mockSendCommand, { commandDelay: 0 });
@@ -19,7 +19,7 @@ function createApp({ fetcherOverrides } = {}) {
     ...fetcherOverrides,
   };
   const app = express();
-  mountRoutes(app, state, queue, poller, mockFetcher);
+  mountRoutes(app, state, queue, poller, mockFetcher, options);
   return { app, state, queue, mockSendCommand, mockFetcher };
 }
 
@@ -49,6 +49,18 @@ describe('GET /api/status', () => {
     expect(res.body.equipment.filter.on).toBe(true);
     expect(res.body.sensors.airTemp).toBe(85);
     expect(res.body.lastUpdated).toBe('2026-03-14T12:00:00.000Z');
+  });
+
+  test('controlsEnabled defaults to false', async () => {
+    const { app } = createApp();
+    const res = await request(app).get('/api/status');
+    expect(res.body.controlsEnabled).toBe(false);
+  });
+
+  test('controlsEnabled is true when enabled via options', async () => {
+    const { app } = createApp({ options: { controlsEnabled: true } });
+    const res = await request(app).get('/api/status');
+    expect(res.body.controlsEnabled).toBe(true);
   });
 });
 

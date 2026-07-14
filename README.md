@@ -36,6 +36,7 @@ services:
       - GATEWAY_URL=http://your-gateway-host   # AquaConnect gateway URL
       # - POLL_INTERVAL=500                    # optional, ms
       # - HEAT_SETTINGS_INTERVAL=3600          # optional, seconds
+      # - STATUS_PAGE_CONTROLS=true            # optional, enable toggle buttons on the status page
 ```
 
 ```sh
@@ -69,6 +70,7 @@ GATEWAY_URL=http://your-gateway-host node src/index.js
 | `PORT` | No | `3000` | API listen port |
 | `POLL_INTERVAL` | No | `500` | Gateway poll interval (ms) |
 | `HEAT_SETTINGS_INTERVAL` | No | `3600` | Seconds between automatic heat set point fetches |
+| `STATUS_PAGE_CONTROLS` | No | `false` | Render tap-to-toggle equipment buttons on the status page (`/`). The command API is available regardless. |
 
 ### Endpoints
 

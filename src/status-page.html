@@ -15,11 +15,20 @@
   .off { color: #99a; }
   .warn { background: #fff3cd; border: 1px solid #ffe08a; border-radius: 6px; padding: 0.6rem 0.8rem; margin: 0.8rem 0; }
   .muted { color: #789; font-size: 0.85rem; }
+  button.toggle {
+    font: inherit; cursor: pointer; min-width: 4.5rem;
+    padding: 0.25rem 0.7rem; border-radius: 999px;
+    border: 1px solid #cdd8dd; background: #eef2f4; color: #99a; font-weight: 600;
+  }
+  button.toggle.on { background: #1a7f37; border-color: #1a7f37; color: #fff; }
+  button.toggle:disabled { opacity: 0.5; cursor: progress; }
+  #toast { position: sticky; top: 0; margin: 0.4rem 0; min-height: 1.1rem; font-size: 0.85rem; color: #b45309; }
 </style>
 </head>
 <body>
 <h1>Pool Control</h1>
 <p class="muted" id="updated">Loading…</p>
+<div id="toast"></div>
 <div id="warning" class="warn" hidden></div>
 <h2>Mode</h2>
 <table><tbody id="mode"></tbody></table>
@@ -40,8 +49,21 @@ const LABELS = {
 };
 const UNITS = { airTemp: '°F', poolTemp: '°F', spaTemp: '°F', saltLevel: ' PPM' };
 
+// Equipment keys the gateway accepts as a button-press toggle (POST /api/command/:action).
+// 'heater' is driven by heat settings/mode, not a direct toggle, so it stays read-only.
+const TOGGLEABLE = new Set(['filter', 'lights', 'spaLights', 'waterfall', 'solarHeater']);
+
+let busy = false; // a command is in flight; pause auto-refresh so it doesn't clobber button state
+
 function row(label, valueHtml) {
   return `<tr><td>${label}</td><td>${valueHtml}</td></tr>`;
+}
+
+function toggleButton(action, on, label) {
+  const state = on === null ? '—' : on ? 'ON' : 'off';
+  const cls = on ? 'toggle on' : 'toggle';
+  const dis = on === null ? ' disabled' : '';
+  return `<button class="${cls}" data-action="${action}" data-label="${label}"${dis}>${state}</button>`;
 }
 
 function render(s) {
@@ -52,12 +74,19 @@ function render(s) {
   warn.hidden = !(s.system && s.system.checkSystem);
   if (!warn.hidden) warn.textContent = '⚠ Check System' + (s.system.message ? ' — ' + s.system.message : '');
 
-  document.getElementById('mode').innerHTML =
-    row('Current mode', s.mode ? s.mode.toUpperCase() : '—');
+  const controls = !!s.controlsEnabled;
+
+  const modeText = s.mode ? s.mode.toUpperCase() : '—';
+  document.getElementById('mode').innerHTML = row('Current mode', controls
+    ? `<button class="toggle on" data-action="mode" data-label="Mode">${modeText}</button>`
+    : modeText);
 
   document.getElementById('equipment').innerHTML = Object.entries(s.equipment)
-    .map(([k, v]) => row(LABELS[k] || k,
-      v.on === null ? '—' : v.on ? '<span class="on">ON</span>' : '<span class="off">off</span>'))
+    .map(([k, v]) => {
+      const label = LABELS[k] || k;
+      if (controls && TOGGLEABLE.has(k)) return row(label, toggleButton(k, v.on, label));
+      return row(label, v.on === null ? '—' : v.on ? '<span class="on">ON</span>' : '<span class="off">off</span>');
+    })
     .join('');
 
   document.getElementById('sensors').innerHTML = Object.entries(s.sensors)
@@ -71,7 +100,12 @@ function render(s) {
     .join('');
 }
 
+function toast(msg) {
+  document.getElementById('toast').textContent = msg;
+}
+
 async function refresh() {
+  if (busy) return; // don't re-render buttons mid-command
   try {
     const res = await fetch('/api/status');
     render(await res.json());
@@ -79,6 +113,34 @@ async function refresh() {
     document.getElementById('updated').textContent = 'API unreachable: ' + e.message;
   }
 }
+
+async function sendCommand(action, label, btn) {
+  if (busy) return;
+  busy = true;
+  toast('');
+  document.querySelectorAll('button.toggle').forEach((b) => { b.disabled = true; });
+  btn.textContent = '…';
+  try {
+    const res = await fetch('/api/command/' + action, { method: 'POST' });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok || !body.success) {
+      toast('Could not toggle ' + label + (body.error ? ' — ' + body.error : ''));
+    }
+  } catch (e) {
+    toast('Could not toggle ' + label + ' — ' + e.message);
+  } finally {
+    busy = false;
+    // The panel LED updates on the next poll cycle; give it a beat before re-rendering.
+    setTimeout(refresh, 1200);
+  }
+}
+
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('button.toggle');
+  if (!btn || btn.disabled) return;
+  sendCommand(btn.dataset.action, btn.dataset.label, btn);
+});
+
 refresh();
 setInterval(refresh, 5000);
 </script>
