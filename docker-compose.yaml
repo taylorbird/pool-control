@@ -1,13 +1,12 @@
-version: '3.8'
 services:
   pool-control:
-    build: .
+    image: taylorlbird/pool-control:latest
     container_name: pool-control
-    restart: always
+    restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
       - GATEWAY_URL=${GATEWAY_URL}
       - PORT=3000
-      - POLL_INTERVAL=500
+      - POLL_INTERVAL=${POLL_INTERVAL:-500}
       - HEAT_SETTINGS_INTERVAL=${HEAT_SETTINGS_INTERVAL:-3600}

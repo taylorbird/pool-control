@@ -11,7 +11,7 @@ The AquaConnect gateway exposes no real API — just an ancient HTML page (`WNew
 └──────────────────┘                 └──────────────┘  POST /api/command └────────────────┘
 ```
 
-The API runs standalone (Docker or Node) on your network — **not** inside Home Assistant. The HA integration is a thin client that polls it.
+This repo is the **API service** (Docker image: [`taylorlbird/pool-control`](https://hub.docker.com/r/taylorlbird/pool-control)). It runs standalone on your network — **not** inside Home Assistant. The Home Assistant integration is a thin client that polls it and lives in its own repo: [**ha-aquaconnect-control**](https://github.com/taylorbird/ha-aquaconnect-control).
 
 ## Features
 
@@ -20,27 +20,41 @@ The API runs standalone (Docker or Node) on your network — **not** inside Home
 - **Heat set points** (read-only): spa/pool heater and solar set points, read by navigating the gateway's settings menu
 - **System warnings**: "Check System" flag (from the LED status byte) plus the warning message text (e.g. "Inspect Cell")
 
-## API service
+## Run with Docker Compose (recommended)
 
-### Run with Docker Compose
+Drop this `docker-compose.yaml` anywhere on the host that should run the API (no need to clone the repo):
 
 ```yaml
 services:
   pool-control:
-    image: # build from this repo
-    build: .
-    restart: always
+    image: taylorlbird/pool-control:latest
+    container_name: pool-control
+    restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
-      - GATEWAY_URL=http://your-gateway-host
+      - GATEWAY_URL=http://your-gateway-host   # AquaConnect gateway URL
+      # - POLL_INTERVAL=500                    # optional, ms
+      # - HEAT_SETTINGS_INTERVAL=3600          # optional, seconds
 ```
 
 ```sh
-GATEWAY_URL=http://your-gateway-host docker compose up -d
+docker compose up -d
+curl http://localhost:3000/api/health
 ```
 
-### Run directly
+Sensor values fill in over the first minute as the gateway's LCD cycles.
+
+## Other ways to run
+
+**Build the image from source:**
+
+```sh
+docker build -t pool-control .
+docker run -d -p 3000:3000 -e GATEWAY_URL=http://your-gateway-host pool-control
+```
+
+**Run directly with Node 20+:**
 
 ```sh
 npm install
@@ -111,24 +125,7 @@ Sensor values populate as the gateway's LCD cycles through its screens (one full
 
 ## Home Assistant integration
 
-The `aquaconnect_control` custom integration connects HA to the API above.
-
-### Install via HACS
-
-1. HACS → Integrations → ⋮ → **Custom repositories**
-2. Add `https://github.com/taylorbird/pool-control` as type **Integration**
-3. Install **AquaConnect Control**, restart HA
-4. Settings → Devices & Services → **Add Integration** → "AquaConnect Control"
-5. Enter the API URL (e.g. `http://pool-control:3000`) and scan interval
-
-### Entities
-
-One "AquaConnect Control" device with:
-
-- 9 sensors (temperatures, salt, chlorinators, filter speed, heater mode, system message)
-- 4 heat set point sensors (with an `enabled` attribute; `Unknown` when the setting is Off)
-- 6 switches (pool/spa mode, filter, lights, spa lights, waterfall, solar heater)
-- 1 binary sensor: **Check System** (device class `problem`, with the warning text as a `message` attribute)
+The companion HACS integration lives at [**taylorbird/ha-aquaconnect-control**](https://github.com/taylorbird/ha-aquaconnect-control). Install it via HACS (custom repository), point it at this API's URL, and you get sensors for every reading, switches for every piece of equipment, and a Check System problem sensor — see that repo's README for details.
 
 ## How it talks to the gateway
 
@@ -144,11 +141,7 @@ Full protocol notes live in [`docs/superpowers/specs/`](docs/superpowers/specs/)
 
 ```sh
 npm install
-npx jest                          # API tests
-
-python3 -m venv .venv
-.venv/bin/pip install homeassistant pytest pytest-asyncio aiohttp
-.venv/bin/python -m pytest tests/ha/   # HA integration tests
+npx jest
 ```
 
 The original C# console app this grew out of is preserved in [`legacy/`](legacy/).
