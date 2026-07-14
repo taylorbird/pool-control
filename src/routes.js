@@ -1,6 +1,11 @@
+const path = require('path');
 const { COMMAND_MAP } = require('./commands');
 
 function mountRoutes(app, state, commandQueue, poller, heatSettingsFetcher) {
+  app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'status-page.html'));
+  });
+
   app.get('/api/status', (req, res) => {
     res.json(state.getSnapshot());
   });

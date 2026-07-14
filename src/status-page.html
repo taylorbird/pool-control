@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pool Control</title>
+<style>
+  body { font-family: -apple-system, system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; background: #f4f7f8; color: #223; }
+  h1 { font-size: 1.4rem; }
+  h2 { font-size: 1rem; margin: 1.2rem 0 0.4rem; color: #467; }
+  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 6px; overflow: hidden; }
+  td { padding: 0.4rem 0.8rem; border-bottom: 1px solid #eef2f4; }
+  td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+  .on { color: #1a7f37; font-weight: 600; }
+  .off { color: #99a; }
+  .warn { background: #fff3cd; border: 1px solid #ffe08a; border-radius: 6px; padding: 0.6rem 0.8rem; margin: 0.8rem 0; }
+  .muted { color: #789; font-size: 0.85rem; }
+</style>
+</head>
+<body>
+<h1>Pool Control</h1>
+<p class="muted" id="updated">Loading…</p>
+<div id="warning" class="warn" hidden></div>
+<h2>Mode</h2>
+<table><tbody id="mode"></tbody></table>
+<h2>Equipment</h2>
+<table><tbody id="equipment"></tbody></table>
+<h2>Sensors</h2>
+<table><tbody id="sensors"></tbody></table>
+<h2>Heat Settings</h2>
+<table><tbody id="heat"></tbody></table>
+<script>
+const LABELS = {
+  filter: 'Filter', lights: 'Lights', spaLights: 'Spa Lights', waterfall: 'Waterfall',
+  solarHeater: 'Solar Heater', heater: 'Heater',
+  airTemp: 'Air Temp', poolTemp: 'Pool Temp', spaTemp: 'Spa Temp', saltLevel: 'Salt Level',
+  poolChlorinator: 'Pool Chlorinator', spaChlorinator: 'Spa Chlorinator',
+  filterSpeed: 'Filter Speed', heaterMode: 'Heater Mode',
+  spaHeater: 'Spa Heater', poolHeater: 'Pool Heater', spaSolar: 'Spa Solar', poolSolar: 'Pool Solar',
+};
+const UNITS = { airTemp: '°F', poolTemp: '°F', spaTemp: '°F', saltLevel: ' PPM' };
+
+function row(label, valueHtml) {
+  return `<tr><td>${label}</td><td>${valueHtml}</td></tr>`;
+}
+
+function render(s) {
+  document.getElementById('updated').textContent =
+    'Last update from gateway: ' + (s.lastUpdated ? new Date(s.lastUpdated).toLocaleString() : 'never');
+
+  const warn = document.getElementById('warning');
+  warn.hidden = !(s.system && s.system.checkSystem);
+  if (!warn.hidden) warn.textContent = '⚠ Check System' + (s.system.message ? ' — ' + s.system.message : '');
+
+  document.getElementById('mode').innerHTML =
+    row('Current mode', s.mode ? s.mode.toUpperCase() : '—');
+
+  document.getElementById('equipment').innerHTML = Object.entries(s.equipment)
+    .map(([k, v]) => row(LABELS[k] || k,
+      v.on === null ? '—' : v.on ? '<span class="on">ON</span>' : '<span class="off">off</span>'))
+    .join('');
+
+  document.getElementById('sensors').innerHTML = Object.entries(s.sensors)
+    .map(([k, v]) => row(LABELS[k] || k, v === null ? '—' : v + (UNITS[k] || '')))
+    .join('');
+
+  document.getElementById('heat').innerHTML = Object.entries(s.heatSettings)
+    .filter(([k]) => k !== 'lastUpdated')
+    .map(([k, v]) => row(LABELS[k] || k,
+      v.enabled === null ? '—' : v.enabled ? v.setPoint + '°F' : '<span class="off">Off</span>'))
+    .join('');
+}
+
+async function refresh() {
+  try {
+    const res = await fetch('/api/status');
+    render(await res.json());
+  } catch (e) {
+    document.getElementById('updated').textContent = 'API unreachable: ' + e.message;
+  }
+}
+refresh();
+setInterval(refresh, 5000);
+</script>
+</body>
+</html>

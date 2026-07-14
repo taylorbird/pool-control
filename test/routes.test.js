@@ -23,6 +23,16 @@ function createApp({ fetcherOverrides } = {}) {
   return { app, state, queue, mockSendCommand, mockFetcher };
 }
 
+describe('GET /', () => {
+  test('serves the status page', async () => {
+    const { app } = createApp();
+    const res = await request(app).get('/');
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toContain('text/html');
+    expect(res.text).toContain('Pool Control');
+  });
+});
+
 describe('GET /api/status', () => {
   test('returns full state snapshot', async () => {
     const { app, state } = createApp();
