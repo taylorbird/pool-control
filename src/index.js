@@ -7,7 +7,10 @@ const { sendCommand, pollGateway } = require('./gateway');
 const { mountRoutes } = require('./routes');
 
 const PORT = process.env.PORT || 3000;
-const POLL_INTERVAL = parseInt(process.env.POLL_INTERVAL || '500', 10);
+// The gateway can't take sustained load: poll slowly when idle, fast briefly after a command.
+const POLL_INTERVAL = parseInt(process.env.POLL_INTERVAL || '15000', 10);
+const FAST_POLL_INTERVAL = parseInt(process.env.FAST_POLL_INTERVAL || '1000', 10);
+const FAST_POLL_DURATION = parseInt(process.env.FAST_POLL_DURATION || '10000', 10);
 const HEAT_SETTINGS_INTERVAL = parseInt(process.env.HEAT_SETTINGS_INTERVAL || '3600', 10);
 // Enable the on-screen toggle buttons on the status page. Off by default;
 // the command API (used by the HA integration) is always available regardless.
@@ -22,6 +25,8 @@ let heatSettingsFetcher;
 
 const poller = createPoller(state, {
   interval: POLL_INTERVAL,
+  fastInterval: FAST_POLL_INTERVAL,
+  fastDuration: FAST_POLL_DURATION,
   heatSettingsFetch: () => heatSettingsFetcher.fetch(),
   heatSettingsInterval: HEAT_SETTINGS_INTERVAL,
 });

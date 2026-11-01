@@ -8,7 +8,7 @@ function createApp({ fetcherOverrides, options } = {}) {
   const state = createState();
   const mockSendCommand = jest.fn().mockResolvedValue();
   const queue = createCommandQueue(mockSendCommand, { commandDelay: 0 });
-  const poller = { isRunning: () => true, stop: jest.fn(), start: jest.fn() };
+  const poller = { isRunning: () => true, stop: jest.fn(), start: jest.fn(), boost: jest.fn() };
   const mockFetcher = {
     fetch: jest.fn().mockResolvedValue({
       spaHeater: { enabled: true, setPoint: 96 },
@@ -20,7 +20,7 @@ function createApp({ fetcherOverrides, options } = {}) {
   };
   const app = express();
   mountRoutes(app, state, queue, poller, mockFetcher, options);
-  return { app, state, queue, mockSendCommand, mockFetcher };
+  return { app, state, queue, poller, mockSendCommand, mockFetcher };
 }
 
 describe('GET /', () => {
@@ -116,6 +116,20 @@ describe('POST /api/command/:action', () => {
     expect(res.body.success).toBe(true);
     expect(res.body.command).toBe('filter');
     expect(mockSendCommand).toHaveBeenCalledWith('08');
+  });
+
+  test('boosts the poller after a successful command', async () => {
+    const { app, poller } = createApp();
+    await request(app).post('/api/command/lights');
+    expect(poller.boost).toHaveBeenCalledTimes(1);
+  });
+
+  test('does not boost the poller when the command fails', async () => {
+    const { app, poller, mockSendCommand } = createApp();
+    mockSendCommand.mockRejectedValue(new Error('gateway down'));
+    const res = await request(app).post('/api/command/lights');
+    expect(res.status).toBe(503);
+    expect(poller.boost).not.toHaveBeenCalled();
   });
 
   test('rejects unknown command', async () => {

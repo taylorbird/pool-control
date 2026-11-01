@@ -53,6 +53,7 @@ function mountRoutes(app, state, commandQueue, poller, heatSettingsFetcher, opti
       return res.status(503).json(result);
     }
 
+    poller.boost();
     res.json(result);
   });
 }

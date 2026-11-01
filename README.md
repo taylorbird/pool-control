@@ -34,7 +34,7 @@ services:
       - "3000:3000"
     environment:
       - GATEWAY_URL=http://your-gateway-host   # AquaConnect gateway URL
-      # - POLL_INTERVAL=500                    # optional, ms
+      # - POLL_INTERVAL=15000                  # optional, ms (idle poll rate)
       # - HEAT_SETTINGS_INTERVAL=3600          # optional, seconds
       # - STATUS_PAGE_CONTROLS=true            # optional, enable toggle buttons on the status page
 ```
@@ -68,7 +68,9 @@ GATEWAY_URL=http://your-gateway-host node src/index.js
 |----------|----------|---------|-------------|
 | `GATEWAY_URL` | Yes | — | AquaConnect gateway base URL |
 | `PORT` | No | `3000` | API listen port |
-| `POLL_INTERVAL` | No | `500` | Gateway poll interval (ms) |
+| `POLL_INTERVAL` | No | `15000` | Idle gateway poll interval (ms). The gateway is a small embedded server that locks up under sustained load — don't set this low. |
+| `FAST_POLL_INTERVAL` | No | `1000` | Poll interval (ms) used briefly after a command, so the new equipment state shows up quickly |
+| `FAST_POLL_DURATION` | No | `10000` | How long (ms) fast polling lasts after each command |
 | `HEAT_SETTINGS_INTERVAL` | No | `3600` | Seconds between automatic heat set point fetches |
 | `STATUS_PAGE_CONTROLS` | No | `false` | Render tap-to-toggle equipment buttons on the status page (`/`). The command API is available regardless. |
 
